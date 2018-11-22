@@ -61,17 +61,18 @@ def noun_notnoun(phrase):
 
 def make_input(x, models):
     x_pred = (np.hsplit(m.predict_proba(x), 2)[0] for m in models)
+    #x_pred = (m.predict(x) for m in models)
     return np.hstack(x_pred)
 
 
-def train_meta_model(data, models):
+def train_meta_model(data, models, dropout=0.3):
     x, xt, y_train, y_test = data
     x_all = make_input(x.toarray(), models)
     
     in_shape = (len(models), )
     m_input = Input(shape=in_shape)
-    m = Dropout(0.2)(m_input)
-    m = Dense(4)(m)
+    m = Dropout(dropout)(m_input)
+    m = Dense(10)(m)
     #m = Dropout(0.2)(m)
     m = Dense(2)(m)
     #m = Dropout(0.2)(m)
@@ -95,12 +96,13 @@ def train_meta_model(data, models):
     
     print('Final ', accuracy_score(one_hot, y_test))
     
-    return model
+    return model, final_pred
 
 min_len = 500
 max_len = 10000
 
-o = pandas.read_csv('./Subtask-A/Training_Full_V1.2.csv', names=['id','x','y'])
+o = pandas.read_csv('./Subtask-A/Training_Full_V1.3.csv', names=['id','x','y'], encoding = "ISO-8859-1")
+#oo = pandas.read_csv('./Subtask-A/TrialData_SubtaskA_Test.csv', names=['id','x','y'], encoding = "ISO-8859-1")
 
 X = o['x']
 Y = o['y']
@@ -108,6 +110,9 @@ Y = o['y']
 #bigrams = word_ngram(X, 2) 
 
 x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=420)
+#x_train, y_train = X, Y
+#x_test = oo['x']
+#y_test = [0]*len(x_test)
 
 #b_train, b_test = train_test_split(bigrams, test_size=0.33, random_state=42)
 
@@ -144,4 +149,4 @@ print('DTC', accuracy_score(y_test, dtc_pred))
 
 # Logistic REgretion
 
-train_meta_model((x, xt, y_train, y_test), [svm, dtc, rfc, gnv])
+model, predic = train_meta_model((x, xt, y_train, y_test), [svm, dtc, rfc, gnv], dropout=0.3)
