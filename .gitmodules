@@ -1,0 +1,6 @@
+[submodule "Subtask-B"]
+	path = Subtask-B
+	url = git@github.com:Semeval2019Task9/Subtask-B.git
+[submodule "Subtask-A"]
+	path = Subtask-A
+	url = git@github.com:Semeval2019Task9/Subtask-A.git
